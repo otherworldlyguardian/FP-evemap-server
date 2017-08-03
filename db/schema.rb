@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170725135519) do
+ActiveRecord::Schema.define(version: 20170803171323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "connections", force: :cascade do |t|
+    t.bigint "map_id"
+    t.string "sys_name"
+    t.string "p_sys_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["map_id"], name: "index_connections_on_map_id"
+  end
 
   create_table "maps", force: :cascade do |t|
     t.string "name"
@@ -44,5 +53,6 @@ ActiveRecord::Schema.define(version: 20170725135519) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "connections", "maps"
   add_foreign_key "maps", "users"
 end

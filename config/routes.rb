@@ -3,4 +3,5 @@ Rails.application.routes.draw do
   post '/grantcode', to: 'user#find_or_create'
   post '/refresh', to: 'user#token_refresh'
   post '/logout', to: 'user#logout'
+  post '/mapupdate', to: 'map#update'
 end

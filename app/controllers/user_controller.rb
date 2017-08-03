@@ -16,13 +16,16 @@ class UserController < ApplicationController
     if user
       user.update(refresh_token: codes['refresh_token'], corp_id: corp_id['corporation_id'])
     else
-      user = User.create(username: name_and_id['CharacterName'], eve_id: name_and_id['CharacterID'], corp_id: corp_id['corporation_id'], refresh_token: codes['refresh_token'])
+      user = User.new(username: name_and_id['CharacterName'], eve_id: name_and_id['CharacterID'], corp_id: corp_id['corporation_id'], refresh_token: codes['refresh_token'])
+      map = Map.create(user: user)
+      user.save
     end
     render json: {
       access_token: codes['access_token'],
       character_id: user.eve_id,
       character_name: user.username,
       corp_id: user.corp_id,
+      connections: user.maps[0].connections,
       eve: issue_token({id: user.id})
     }
   end
@@ -43,6 +46,7 @@ class UserController < ApplicationController
       access_token: codes['access_token'],
       character_id: user.eve_id,
       character_name: user.username,
+      connections: user.maps[0].connections,
       corp_id: user.corp_id
     }
   end
@@ -62,6 +66,10 @@ class UserController < ApplicationController
 
   def logout
     user = User.find(token_user_id)
+    user.maps[0].connections.destroy_all
+    params['eve']['sysList'].each do |sys|
+      Connection.create(map: user.maps[0], sys_name: sys['name'], p_sys_name: sys['connection'])
+    end
     user.refresh_token = ''
     user.save
     render json: {
